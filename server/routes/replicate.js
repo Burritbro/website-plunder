@@ -113,7 +113,7 @@ async function replicate(req, res) {
     // STEP 6: Rewrite HTML with new asset URLs
     console.log(`[${sessionId}] Rewriting HTML...`);
     parser.stripUnsafeContent($);
-    parser.rewriteAssets($, processedAssetMap);
+    parser.rewriteAssets($, processedAssetMap, finalUrl);
     parser.addReplicaBanner($);
 
     const rawHTML = parser.getHTML($);
