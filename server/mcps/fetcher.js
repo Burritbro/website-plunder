@@ -25,8 +25,8 @@ class Fetcher {
     this.MAX_ASSET_SIZE = 5 * 1024 * 1024;  // 5MB for CSS/images
     this.TIMEOUT = 15000; // 15 seconds
 
-    // User agent identifies us as a replication tool
-    this.USER_AGENT = 'Mozilla/5.0 (compatible; WebsitePlunder/1.0; +https://github.com/yourorg/website-plunder)';
+    // User agent: Use standard browser UA to avoid CDN blocking
+    this.USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
   }
 
   /**
@@ -115,6 +115,13 @@ class Fetcher {
         responseType: 'text'
       });
 
+      // Validate content-type to ensure we got actual CSS, not an error page
+      const contentType = response.headers['content-type'] || '';
+      if (!contentType.includes('text/css') && !contentType.includes('text/plain')) {
+        console.error(`Invalid content-type for CSS from ${url}: ${contentType}`);
+        return null;
+      }
+
       return response.data;
     } catch (error) {
       console.error(`Failed to fetch CSS from ${url}:`, error.message);
@@ -139,9 +146,14 @@ class Fetcher {
         responseType: 'arraybuffer'
       });
 
-      const contentType = response.headers['content-type'] || 'image/png';
-      const base64 = Buffer.from(response.data).toString('base64');
+      // Validate content-type to ensure we got an actual image, not an error page
+      const contentType = response.headers['content-type'] || '';
+      if (!contentType.startsWith('image/') && !contentType.includes('svg')) {
+        console.error(`Invalid content-type for image from ${url}: ${contentType}`);
+        return null;
+      }
 
+      const base64 = Buffer.from(response.data).toString('base64');
       return `data:${contentType};base64,${base64}`;
     } catch (error) {
       console.error(`Failed to fetch image from ${url}:`, error.message);
