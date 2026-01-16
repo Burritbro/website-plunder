@@ -100,8 +100,11 @@ async function replicate(req, res) {
     const processedAssetMap = { ...assetMap };
     assets.stylesheets.forEach(sheet => {
       const css = assetMap[sheet.original] || assetMap[sheet.absolute];
-      if (css && typeof css === 'string' && css.includes('url(')) {
-        const processedCSS = parser.processCSS(css, finalUrl, assetMap);
+      if (css && typeof css === 'string') {
+        // Process CSS to rewrite URLs if it contains any
+        const processedCSS = css.includes('url(')
+          ? parser.processCSS(css, finalUrl, assetMap)
+          : css;
         processedAssetMap[sheet.original] = processedCSS;
         processedAssetMap[sheet.absolute] = processedCSS;
       }
