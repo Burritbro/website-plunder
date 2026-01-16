@@ -188,8 +188,9 @@ class Parser {
   /**
    * Rewrite asset URLs in the HTML
    * Design Decision: Replace original URLs with data URLs or updated paths
+   * baseUrl parameter is needed to resolve relative URLs for lookup
    */
-  rewriteAssets($, assetMap) {
+  rewriteAssets($, assetMap, baseUrl) {
     // Rewrite image sources
     $('img[src]').each((i, elem) => {
       const src = $(elem).attr('src');
@@ -212,9 +213,17 @@ class Parser {
     // Rewrite stylesheet links - convert to inline styles
     $('link[rel="stylesheet"]').each((i, elem) => {
       const href = $(elem).attr('href');
-      if (assetMap[href]) {
+      let css = assetMap[href];
+
+      // If not found by original href, try resolving to absolute URL
+      if (!css && baseUrl) {
+        const absoluteHref = this.resolveUrl(href, baseUrl);
+        css = assetMap[absoluteHref];
+      }
+
+      if (css) {
         // Replace link tag with style tag containing the CSS
-        const styleTag = `<style type="text/css">${assetMap[href]}</style>`;
+        const styleTag = `<style type="text/css">${css}</style>`;
         $(elem).replaceWith(styleTag);
       }
     });
@@ -299,18 +308,35 @@ class Parser {
   /**
    * Format HTML with proper indentation for human readability
    * Uses a simple line-by-line formatting approach
+   * Preserves <style> and <script> tag contents without modification
    */
   formatHTML(html) {
     let formatted = '';
     let indent = 0;
     const indentStr = '  '; // 2 spaces
 
+    // First, extract and preserve style/script contents
+    const preserved = [];
+    let processedHtml = html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/gi, (match, open, content, close) => {
+      const placeholder = `___STYLE_${preserved.length}___`;
+      preserved.push({ open, content, close });
+      return placeholder;
+    });
+
     // Split by tags while preserving them
-    const parts = html.split(/(<[^>]+>)/g);
+    const parts = processedHtml.split(/(<[^>]+>)/g);
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i].trim();
       if (!part) continue;
+
+      // Check for preserved content placeholders
+      if (part.startsWith('___STYLE_')) {
+        const index = parseInt(part.match(/___STYLE_(\d+)___/)[1]);
+        const { open, content, close } = preserved[index];
+        formatted += indentStr.repeat(indent) + open + content + close + '\n';
+        continue;
+      }
 
       // Check if this is a tag
       if (part.startsWith('<')) {
