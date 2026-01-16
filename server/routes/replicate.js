@@ -116,7 +116,8 @@ async function replicate(req, res) {
     parser.rewriteAssets($, processedAssetMap);
     parser.addReplicaBanner($);
 
-    const replicatedHTML = parser.getHTML($);
+    const rawHTML = parser.getHTML($);
+    const replicatedHTML = parser.formatHTML(rawHTML);
 
     // STEP 7: Clean up session (we've embedded everything)
     storage.clearSession(sessionId);
