@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Plunder - Replicate Any Site</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Main application container -->
+  <div class="app-container">
+
+    <!-- Header with pirate branding -->
+    <header class="header">
+      <div class="skull">☠️</div>
+      <h1 class="title">Website Plunder</h1>
+      <div class="skull">☠️</div>
+    </header>
+
+    <p class="subtitle">Replicate any public website as it appears to users</p>
+
+    <!-- Input section -->
+    <div class="input-section">
+      <div class="input-group">
+        <label for="url-input" class="input-label">Target URL</label>
+        <input
+          type="text"
+          id="url-input"
+          class="url-input"
+          placeholder="https://example.com"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <button id="replicate-btn" class="replicate-btn">
+        ⚓ Set Sail
+      </button>
+    </div>
+
+    <!-- Status messages -->
+    <div id="status-container" class="status-container hidden">
+      <div class="status-message">
+        <span id="status-icon">⚓</span>
+        <span id="status-text">Preparing to plunder...</span>
+      </div>
+      <div id="progress-details" class="progress-details"></div>
+    </div>
+
+    <!-- Error messages -->
+    <div id="error-container" class="error-container hidden">
+      <div class="error-icon">⚠️</div>
+      <div id="error-text" class="error-text"></div>
+    </div>
+
+    <!-- Results section -->
+    <div id="results-container" class="results-container hidden">
+      <div class="results-header">
+        <h2>Plundered Successfully!</h2>
+        <div id="stats" class="stats"></div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="view-btn" class="action-btn primary">
+          👁️ View Replica
+        </button>
+        <button id="download-btn" class="action-btn">
+          💾 Download HTML
+        </button>
+        <button id="reset-btn" class="action-btn">
+          🔄 Plunder Another
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer with disclaimer -->
+    <footer class="footer">
+      <p>⚠️ Only replicate sites you have permission to access. Respect robots.txt and legal boundaries.</p>
+    </footer>
+  </div>
+
+  <!-- Modal for viewing replica -->
+  <div id="replica-modal" class="modal hidden">
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Replica Preview</h3>
+        <button id="close-modal" class="close-btn">✕</button>
+      </div>
+      <iframe id="replica-frame" class="replica-frame"></iframe>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

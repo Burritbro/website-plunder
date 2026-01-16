@@ -1,0 +1,19 @@
+{
+  "name": "website-plunder",
+  "version": "1.0.0",
+  "description": "A pirate-themed web application that replicates public websites",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "keywords": ["website", "replication", "scraper", "pirate"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "robots-parser": "^3.0.1"
+  }
+}
