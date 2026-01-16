@@ -16,6 +16,7 @@
  */
 
 const axios = require('axios');
+const https = require('https');
 const RobotsParser = require('robots-parser');
 
 class Fetcher {
@@ -27,6 +28,12 @@ class Fetcher {
 
     // User agent identifies us as a replication tool
     this.USER_AGENT = 'Mozilla/5.0 (compatible; WebsitePlunder/1.0; +https://github.com/yourorg/website-plunder)';
+
+    // HTTPS agent that allows self-signed certificates
+    // WARNING: This bypasses SSL verification. Only use with sites you trust.
+    this.httpsAgent = new https.Agent({
+      rejectUnauthorized: false
+    });
   }
 
   /**
@@ -40,7 +47,8 @@ class Fetcher {
 
       const response = await axios.get(robotsUrl, {
         timeout: 5000,
-        validateStatus: (status) => status < 500 // Accept 404
+        validateStatus: (status) => status < 500, // Accept 404
+        httpsAgent: this.httpsAgent
       });
 
       if (response.status === 200) {
@@ -77,7 +85,8 @@ class Fetcher {
           'Accept-Encoding': 'gzip, deflate',
           'Connection': 'keep-alive',
         },
-        responseType: 'text'
+        responseType: 'text',
+        httpsAgent: this.httpsAgent
       });
 
       return {
@@ -112,7 +121,8 @@ class Fetcher {
           'Referer': refererUrl,
           'Accept': 'text/css,*/*;q=0.1'
         },
-        responseType: 'text'
+        responseType: 'text',
+        httpsAgent: this.httpsAgent
       });
 
       return response.data;
@@ -136,7 +146,8 @@ class Fetcher {
           'User-Agent': this.USER_AGENT,
           'Referer': refererUrl
         },
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        httpsAgent: this.httpsAgent
       });
 
       const contentType = response.headers['content-type'] || 'image/png';
@@ -161,7 +172,8 @@ class Fetcher {
           'User-Agent': this.USER_AGENT,
           'Referer': refererUrl
         },
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        httpsAgent: this.httpsAgent
       });
 
       const contentType = response.headers['content-type'] || 'application/octet-stream';
