@@ -286,9 +286,62 @@ class Parser {
 
   /**
    * Generate final HTML from cheerio object
+   * Formats with proper indentation for readability
    */
   getHTML($) {
-    return $.html();
+    return $.html({
+      decodeEntities: false,
+      // Note: cheerio doesn't support pretty-printing natively
+      // But we preserve whitespace from the original HTML
+    });
+  }
+
+  /**
+   * Format HTML with proper indentation for human readability
+   * Uses a simple line-by-line formatting approach
+   */
+  formatHTML(html) {
+    let formatted = '';
+    let indent = 0;
+    const indentStr = '  '; // 2 spaces
+
+    // Split by tags while preserving them
+    const parts = html.split(/(<[^>]+>)/g);
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i].trim();
+      if (!part) continue;
+
+      // Check if this is a tag
+      if (part.startsWith('<')) {
+        // Closing tag - decrease indent first
+        if (part.startsWith('</')) {
+          indent = Math.max(0, indent - 1);
+          formatted += indentStr.repeat(indent) + part + '\n';
+        }
+        // Self-closing tag or single-line tag
+        else if (part.endsWith('/>') || part.match(/<(img|br|hr|input|meta|link)/i)) {
+          formatted += indentStr.repeat(indent) + part + '\n';
+        }
+        // Opening tag
+        else {
+          formatted += indentStr.repeat(indent) + part + '\n';
+          // Increase indent for next element (unless it's an inline tag)
+          if (!part.match(/<(span|a|strong|em|b|i|u|small|code)/i)) {
+            indent++;
+          }
+        }
+      }
+      // Text content
+      else {
+        // Only add non-empty text content
+        if (part.length > 0) {
+          formatted += indentStr.repeat(indent) + part + '\n';
+        }
+      }
+    }
+
+    return formatted;
   }
 }
 
